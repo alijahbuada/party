@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Party</title>
+<meta name="description" content="alijah's ten favorite anime characters, as a jrpg party menu.">
+<meta name="theme-color" content="#0b0f2e">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 shape-rendering=%27crispEdges%27%3E%3Crect width=%2716%27 height=%2716%27 fill=%27%231d2a8a%27/%3E%3Cpath d=%27M5 4h2v2h2v2h-2v2h-2z%27 fill=%27%23ffd34d%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap">
+<style>
+/* Layout: a 16-bit JRPG party menu. Party list window on the left, status window on the right, a dialogue box underneath where Alijah says why. */
+:root{
+  --void:#05061a;          /* behind the windows */
+  --win-top:#2b3cae;       /* menu window gradient */
+  --win-bot:#0e1555;
+  --frame:#eef0ff;         /* window border */
+  --text:#f4f5ff;
+  --dim:#9aa3e0;
+  --gold:#ffd34d;          /* cursor + highlights */
+  --hp:#5ee08a; --mp:#62b8ff; --low:#ff6b7a;
+  --f-px:"Press Start 2P","Courier New",monospace;
+  --f-jp:"DotGothic16","Courier New",monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--void);color:var(--text)}
+body{font-family:var(--f-jp);font-size:16px;line-height:1.6;padding-inline:16px;padding-block:24px 48px;min-height:100vh;
+  background:
+    radial-gradient(ellipse at 50% -10%, #1a2280 0%, transparent 60%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 3px),
+    var(--void)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.screen{max-width:1080px;margin-inline:auto;display:grid;gap:16px}
+
+/* windows */
+.win{background:linear-gradient(180deg,var(--win-top),var(--win-bot));border:3px solid var(--frame);border-radius:8px;
+  box-shadow:0 0 0 3px #060820, inset 0 0 0 2px rgba(0,0,0,.25), 0 14px 30px rgba(0,0,0,.55);padding:16px 18px;position:relative;min-width:0}
+.px{font-family:var(--f-px);font-size:11px;letter-spacing:.04em;line-height:1.8}
+.dim{color:var(--dim)}
+.gold{color:var(--gold)}
+
+/* top bar */
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 18px}
+.top h1{margin:0;font-family:var(--f-px);font-size:clamp(16px,2.6vw,22px);letter-spacing:.06em}
+.top h1 span{font-family:var(--f-jp);font-size:.9em;color:var(--gold);margin-left:10px}
+.top .right{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.top a{color:var(--dim);text-decoration:none}
+.top a:hover{color:var(--text)}
+.toggle{all:unset;cursor:pointer;font-family:var(--f-px);font-size:10px;color:var(--dim);border:2px solid var(--dim);padding:4px 8px;border-radius:4px}
+.toggle[aria-pressed="true"]{color:var(--gold);border-color:var(--gold)}
+.toggle:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* main grid */
+.main{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.main{grid-template-columns:1fr}}
+
+/* party list */
+.party{display:grid;gap:4px;padding:12px 10px}
+.party-head{display:flex;justify-content:space-between;padding:0 8px 8px;border-bottom:2px solid rgba(238,240,255,.25);margin-bottom:6px}
+.member{all:unset;cursor:pointer;display:grid;grid-template-columns:18px 44px minmax(0,1fr);gap:10px;align-items:center;padding:6px 8px;border-radius:4px}
+.member:focus-visible{outline:3px solid var(--gold);outline-offset:0}
+.member .cur{font-family:var(--f-px);font-size:12px;color:var(--gold);visibility:hidden}
+.member[aria-selected="true"]{background:rgba(255,255,255,.08)}
+.member[aria-selected="true"] .cur{visibility:visible;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.mini{width:44px;height:44px;border:2px solid var(--frame);background:#0a0f3a;overflow:hidden;display:grid;place-items:center;border-radius:3px}
+.mini img{width:100%;height:100%;object-fit:cover;object-position:50% 15%;display:block}
+.mini .ini{font-family:var(--f-px);font-size:11px;color:var(--gold)}
+.m-txt{display:grid;gap:2px;min-width:0}
+.m-name{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-sub{display:flex;gap:10px;align-items:center}
+.m-sub .px.dim{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar{flex:1;height:8px;background:#060a2c;border:2px solid #060a2c;box-shadow:0 0 0 1px rgba(238,240,255,.35);position:relative;min-width:40px}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--hp)}
+@media (max-width:820px){.party{grid-template-columns:repeat(2,minmax(0,1fr))}.party-head{grid-column:1/-1}}
+@media (max-width:420px){.member{grid-template-columns:14px 36px minmax(0,1fr);gap:6px}.mini{width:36px;height:36px}.m-name{font-size:14px}.m-sub .px{display:none}}
+
+/* status */
+.status{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:20px;align-items:start}
+.portrait{border:3px solid var(--frame);box-shadow:0 0 0 3px #060820;background:#0a0f3a;aspect-ratio:3/4;overflow:hidden;position:relative;max-width:100%}
+.portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block}
+.portrait .ini{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-px);font-size:28px;color:var(--gold)}
+.portrait::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 1px,transparent 1px 3px);pointer-events:none}
+.st-head{display:grid;gap:4px;margin-bottom:12px}
+.st-name{font-size:clamp(22px,3vw,30px);line-height:1.2}
+.st-jp{color:var(--dim);font-size:15px}
+.rows{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0 0 14px}
+.rows dt{font-family:var(--f-px);font-size:10px;color:var(--gold);padding-top:4px}
+.rows dd{margin:0;min-width:0}
+.gauges{display:grid;gap:6px;margin-bottom:14px}
+.gauge{display:grid;grid-template-columns:34px 1fr 64px;gap:10px;align-items:center}
+.gauge .bar{height:10px}
+.gauge .bar.mp i{background:var(--mp)}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 18px;border-top:2px solid rgba(238,240,255,.2);padding-top:12px}
+.stat{display:grid;grid-template-columns:82px 1fr 26px;gap:8px;align-items:center}
+.stat .bar i{background:var(--gold);transition:width .5s steps(10)}
+@media (max-width:560px){.status{grid-template-columns:1fr}.portrait{max-width:200px}}
+
+/* dialogue */
+.talk{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:start;min-height:150px;cursor:pointer}
+.talk .who{font-family:var(--f-px);font-size:11px;color:var(--gold);white-space:nowrap}
+.talk p{margin:0;font-size:18px;line-height:1.8;max-width:70ch;min-height:5.4em}
+.talk .more{position:absolute;right:16px;bottom:10px;font-family:var(--f-px);font-size:12px;color:var(--gold);animation:blink 1s steps(2) infinite}
+@media (max-width:560px){.talk{grid-template-columns:1fr;gap:6px}.talk p{font-size:16px}}
+
+.help{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 18px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="screen">
+  <header class="win top">
+    <h1>THE PARTY<span>仲間</span></h1>
+    <div class="right">
+      <span class="px dim" id="count">10/10 RECRUITED</span>
+      <button type="button" class="toggle" id="bgm" aria-pressed="true">♫ BGM ON</button>
+      <button type="button" class="toggle" id="snd" aria-pressed="true">♪ SFX ON</button>
+      <a class="px" href="https://alijahbuada.github.io/">← GONEADRIFT</a>
+    </div>
+  </header>
+
+  <div class="main">
+    <nav class="win party" id="party" role="listbox" aria-label="Party members">
+      <div class="party-head"><span class="px gold">PARTY</span><span class="px dim">LV</span></div>
+    </nav>
+
+    <section class="win" aria-live="polite">
+      <div class="status">
+        <div class="portrait" id="portrait"></div>
+        <div>
+          <div class="st-head">
+            <span class="px gold" id="st-no">NO.01</span>
+            <span class="st-name" id="st-name"></span>
+            <span class="st-jp" id="st-jp"></span>
+          </div>
+          <dl class="rows">
+            <dt>FROM</dt><dd id="st-from"></dd>
+            <dt>CLASS</dt><dd id="st-class"></dd>
+            <dt>EQUIP</dt><dd id="st-equip"></dd>
+            <dt>SKILL</dt><dd id="st-skill"></dd>
+          </dl>
+          <div class="gauges">
+            <div class="gauge"><span class="px">LV</span><span class="px gold" id="st-lv"></span><span></span></div>
+            <div class="gauge"><span class="px">HP</span><span class="bar"><i id="hp-bar"></i></span><span class="px" id="hp-num"></span></div>
+            <div class="gauge"><span class="px">MP</span><span class="bar mp"><i id="mp-bar"></i></span><span class="px" id="mp-num"></span></div>
+          </div>
+          <div class="stats" id="stats"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="win talk" id="talk" aria-live="polite" title="Click to skip">
+    <span class="who">ALIJAH ▸</span>
+    <p id="why"></p>
+    <span class="more" id="more" hidden>▼</span>
+  </section>
+
+  <footer class="win help">
+    <span class="px dim">↑↓ SELECT · ENTER / CLICK TO SKIP TEXT · MUSIC STARTS ON YOUR FIRST CLICK</span>
+    <a class="px dim" id="mal" href="https://myanimelist.net/profile/samba27" target="_blank" rel="noopener" style="text-decoration:none">VIEW ON MAL ↗</a>
+  </footer>
+</div>
+
+<script>
+const PARTY = [
+  { id:22037, name:'Hitagi Senjougahara', jp:'戦場ヶ原 ひたぎ', from:'Bakemonogatari (2009)', img:'https://cdn.myanimelist.net/images/characters/11/287902.jpg',
+    cls:'Wordsmith', equip:'A stapler, kept within reach', skill:'Weightless — gave up what she couldn’t carry',
+    lv:99, hp:72, mp:96, stats:{WIT:97, NERVE:88, CHARM:84, MYSTERY:80, HEART:76},
+    why:"she talks like she's holding a blade to your throat, and then you realize she's guarding something. bakemonogatari is my baseline, and she's a big part of why. language as combat. she handed her weight away so she wouldn't have to feel what happened. and then she learned to carry it again." },
+  { id:53641, name:'Deishuu Kaiki', jp:'貝木 泥舟', from:'Monogatari Series: Second Season (2013)', img:'https://cdn.myanimelist.net/images/characters/13/155489.jpg',
+    cls:'Con Artist', equip:'Black suit, a fake charm or two', skill:'Honest Fraud — tells you he’s lying',
+    lv:88, hp:80, mp:70, stats:{WIT:94, NERVE:90, CHARM:62, MYSTERY:96, HEART:41},
+    why:"a fraud who tells you he's a fraud. he only believes in money, and somehow he's the most honest man in the whole series. every line out of his mouth is a performance, and he still keeps a promise to a woman who's gone. i love a character who is a concept walking around in a suit." },
+  { id:391, name:'Jin', jp:'仁', from:'Samurai Champloo (2004)', img:'https://cdn.myanimelist.net/images/characters/13/62969.jpg',
+    cls:'Ronin', equip:'Daishō, round glasses', skill:'Kenjutsu — form before everything',
+    lv:84, hp:86, mp:58, stats:{WIT:82, NERVE:95, CHARM:66, MYSTERY:88, HEART:70},
+    why:"jin barely talks and still says everything. a man of strict form who keeps choosing to wander. the glasses on a samurai always got me. champloo put hip-hop and the edo period in the same frame and never apologized for it. that's how i want to make things." },
+  { id:1047, name:'Fujiko Mine', jp:'峰 不二子', from:'Lupin III (1971–)', img:'https://cdn.myanimelist.net/images/characters/14/329615.jpg',
+    cls:'Thief', equip:'Pistol, a closet of disguises', skill:'Double-Cross — always keeps the loot',
+    lv:90, hp:74, mp:88, stats:{WIT:92, NERVE:89, CHARM:98, MYSTERY:93, HEART:52},
+    why:"fujiko never belongs to anyone. not lupin, not zenigata, not the story. every era of lupin redraws her and she still slips out of the frame. she knows exactly what everyone assumes about her and turns it into a tool. she's the woman who doesn't need you to complete her." },
+  { id:7797, name:'Rin Asogi', jp:'麻生祇 燐', from:'Mnemosyne (2008)', img:'https://cdn.myanimelist.net/images/characters/7/129907.jpg',
+    cls:'Immortal Detective', equip:'A detective agency in Tokyo', skill:'Fruit of Time — always comes back',
+    lv:95, hp:99, mp:64, stats:{WIT:90, NERVE:93, CHARM:85, MYSTERY:94, HEART:68},
+    why:"rin has been alive for a thousand years and still treats it like a regular tuesday. she's seen everything and kept her sense of humor anyway. mnemosyne is not an easy watch, but she's why i stayed. time passing through someone who doesn't change." },
+  { id:136359, name:'Kaguya Shinomiya', jp:'四宮 かぐや', from:'Kaguya-sama: Love is War (2019)', img:'https://cdn.myanimelist.net/images/characters/2/504723.jpg',
+    cls:'Strategist', equip:'Student council seat, a family name', skill:'Make Him Confess First',
+    lv:80, hp:66, mp:94, stats:{WIT:98, NERVE:72, CHARM:86, MYSTERY:60, HEART:83},
+    why:"kaguya can do anything except say how she feels. she treats love like chess against someone who won't admit he's playing too. it's the funniest show on this list and somehow one of the saddest. the smartest girl in school, raised to see people as tools, slowly learning they aren't." },
+  { id:67065, name:'Hachiman Hikigaya', jp:'比企谷 八幡', from:'My Teen Romantic Comedy SNAFU (2013)', img:'https://cdn.myanimelist.net/images/characters/4/203555.jpg',
+    cls:'Loner', equip:'Dead-fish eyes, a bike', skill:'Take the Fall — becomes the villain so it works',
+    lv:76, hp:58, mp:90, stats:{WIT:91, NERVE:70, CHARM:44, MYSTERY:57, HEART:89},
+    why:"hachiman thinks youth is a story told by phonies, and he fixes everyone's problems by making himself the bad guy. i know what it's like to be in the room and not counted. oregairu is about wanting something real so badly you'd rather have nothing than something fake." },
+  { id:198695, name:'Rajdhani', jp:'ラジダニ', from:'Sonny Boy (2021)', img:'https://cdn.myanimelist.net/images/characters/16/447266.jpg',
+    cls:'Analyst', equip:'A notebook full of rules', skill:'Pocket Computer — runs the world like code',
+    lv:70, hp:60, mp:97, stats:{WIT:96, NERVE:64, CHARM:58, MYSTERY:66, HEART:80},
+    why:"while everyone else panics, rajdhani starts writing down the rules. sonny boy is about kids stranded in worlds that make no sense, and he's the one who believes they can still be understood. i relate to wanting a system for the impossible. the quiet one is usually doing the most work." },
+  { id:8464, name:'Black☆Star', jp:'ブラック☆スター', from:'Soul Eater (2008)', img:'https://cdn.myanimelist.net/images/characters/3/549089.jpg',
+    cls:'Assassin (Loud)', equip:'Tsubaki, in any form she chooses', skill:'Big Star — announces himself first',
+    lv:82, hp:95, mp:40, stats:{WIT:38, NERVE:99, CHARM:77, MYSTERY:30, HEART:90},
+    why:"an assassin who can't stop announcing himself. he's the opposite of me, and that's the point. he says he'll surpass god and he means it. under all the noise, he learns he isn't strong alone. soul eater's whole look is a mood, and he's the loudest thing in it." },
+  { id:220179, name:'Amo Empool', jp:'アモ・エンプール', from:'Gachiakuta (2025)', img:'https://cdn.myanimelist.net/images/characters/9/604985.jpg',
+    cls:'Abyss Dweller', equip:'Unknown. Still finding out.', skill:'Breathes Where No One Should',
+    lv:'??', hp:64, mp:82, stats:{WIT:70, NERVE:78, CHARM:80, MYSTERY:97, HEART:61},
+    why:"amo lives somewhere nobody is supposed to survive, and she breathes there like it's nothing. gachiakuta is about trash and the people the world throws away, and she's one of its strangest corners. i'm still figuring her out, which is probably why she's on the list." }
+];
+
+const $=id=>document.getElementById(id);
+const list=$('party'); let sel=0;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* chiptune blips (square wave), only after the first interaction */
+let ac=null, soundOn=true;
+function blip(f1,f2,dur){ if(!soundOn) return; try{
+  ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+  const o=ac.createOscillator(), g=ac.createGain(); o.type='square';
+  o.frequency.setValueAtTime(f1,ac.currentTime); if(f2) o.frequency.setValueAtTime(f2,ac.currentTime+dur/2);
+  g.gain.setValueAtTime(0.06,ac.currentTime); g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+dur);
+  o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime+dur);
+}catch(e){} }
+$('snd').addEventListener('click',()=>{ soundOn=!soundOn; $('snd').setAttribute('aria-pressed',soundOn); $('snd').textContent=soundOn?'♪ SFX ON':'♪ SFX OFF'; if(soundOn) blip(660,990,0.12); });
+
+function portraitHTML(c, cls){ return '<img src="'+c.img+'" alt="'+c.name+'" referrerpolicy="no-referrer" onerror="if(this.parentNode)this.outerHTML=\'<span class=ini>'+c.name.split(/\s+/).map(w=>w[0]).join('').slice(0,2)+'</span>\'">'; }
+
+PARTY.forEach((c,i)=>{
+  const b=document.createElement('button'); b.type='button'; b.className='member'; b.setAttribute('role','option'); b.id='m'+i;
+  b.innerHTML='<span class="cur" aria-hidden="true">▶</span><span class="mini">'+portraitHTML(c)+'</span>'+
+    '<span class="m-txt"><span class="m-name">'+c.name+'</span><span class="m-sub"><span class="px dim">'+c.cls.toUpperCase()+'</span><span class="bar"><i style="width:'+c.hp+'%"></i></span><span class="px gold">'+c.lv+'</span></span></span>';
+  b.addEventListener('click',()=>{ select(i,true); });
+  list.appendChild(b);
+});
+
+let typeT=0, full='', shown=0;
+function type(){
+  clearTimeout(typeT); const p=$('why');
+  if(shown>=full.length){ p.textContent=full; $('more').hidden=false; return; }
+  shown+=2; p.textContent=full.slice(0,shown);
+  if(soundOn && ac && shown%8===0) blip(330,0,0.025);
+  typeT=setTimeout(type,24);
+}
+function select(i, sound){
+  sel=(i+PARTY.length)%PARTY.length; const c=PARTY[sel];
+  [...list.querySelectorAll('.member')].forEach((m,j)=>{ m.setAttribute('aria-selected', j===sel); m.tabIndex = j===sel?0:-1; });
+  $('portrait').innerHTML=portraitHTML(c);
+  $('st-no').textContent='NO.'+String(sel+1).padStart(2,'0');
+  $('st-name').textContent=c.name; $('st-jp').textContent=c.jp; $('st-from').textContent=c.from;
+  $('st-class').textContent=c.cls; $('st-equip').textContent=c.equip; $('st-skill').textContent=c.skill;
+  $('st-lv').textContent=c.lv;
+  $('hp-bar').style.width=c.hp+'%'; $('hp-num').textContent=c.hp*9+'/'+891;
+  $('mp-bar').style.width=c.mp+'%'; $('mp-num').textContent=c.mp*3+'/'+297;
+  $('stats').innerHTML=Object.entries(c.stats).map(([k,v])=>'<div class="stat"><span class="px">'+k+'</span><span class="bar"><i style="width:'+v+'%"></i></span><span class="px gold">'+v+'</span></div>').join('');
+  $('mal').href='https://myanimelist.net/character/'+c.id;
+  full=c.why; shown=0; $('more').hidden=true;
+  if(reduce){ $('why').textContent=full; $('more').hidden=false; } else type();
+  if(sound) blip(880,1320,0.08);
+}
+function skip(){ if(shown<full.length){ shown=full.length; type(); blip(520,0,0.05); } }
+$('talk').addEventListener('click',skip);
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowDown'||e.key==='ArrowRight'&&e.target.closest&&e.target.closest('#party')){ select(sel+1,true); $('m'+sel).focus(); e.preventDefault(); }
+  else if(e.key==='ArrowUp'||e.key==='ArrowLeft'&&e.target.closest&&e.target.closest('#party')){ select(sel-1,true); $('m'+sel).focus(); e.preventDefault(); }
+  else if(e.key==='Enter' && !e.target.closest('a,.toggle,.member')){ skip(); }
+});
+
+/* background music: an original 8-bar chiptune loop, built from square + triangle waves.
+   browsers only allow sound after a click or key, so it starts on your first interaction. */
+const BGM=(function(){
+  const BPM=96, E=60/BPM/2;               // one eighth note in seconds
+  const LEAD=[ 76,-1,72,69,72,-1,76,74,  72,-1,69,-1,65,-1,69,72,  67,-1,72,76,-1,79,77,76,  74,-1,-1,71,67,-1,0,0,
+               76,-1,72,69,72,-1,81,79,  77,-1,76,72,69,-1,72,74,  76,-1,74,71,67,-1,71,74,  71,-1,-1,-1,68,-1,0,0 ];
+  const CHORDS=[[45,57,64,69,72],[41,53,60,65,69],[48,60,64,67,72],[43,55,62,67,71],[45,57,64,69,72],[41,53,60,65,69],[43,55,62,67,71],[40,52,59,64,68]];
+  const hz=m=>440*Math.pow(2,(m-69)/12);
+  let ctx=null, out=null, on=true, playing=false, step=0, next=0, timer=0, noise=null;
+  function tone(type,freq,t,dur,vol){
+    const o=ctx.createOscillator(), g=ctx.createGain(); o.type=type; o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+0.008); g.gain.setValueAtTime(vol*0.75,t+Math.min(dur*0.4,0.08));
+    g.gain.linearRampToValueAtTime(0,t+dur); o.connect(g); g.connect(out); o.start(t); o.stop(t+dur+0.02);
+  }
+  function hat(t,vol){ const s=ctx.createBufferSource(); s.buffer=noise; const f=ctx.createBiquadFilter(); f.type='highpass'; f.frequency.value=7000;
+    const g=ctx.createGain(); g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.05); s.connect(f); f.connect(g); g.connect(out); s.start(t); s.stop(t+0.06); }
+  function schedule(){
+    while(next < ctx.currentTime+0.25){
+      const i=step%LEAD.length, bar=Math.floor(i/8), beat=i%8, ch=CHORDS[bar];
+      const n=LEAD[i];
+      if(n>0){ let len=1; while(LEAD[(i+len)%LEAD.length]===-1 && len<8) len++; tone('square',hz(n),next,E*len*0.92,0.045); }
+      tone('triangle',hz(beat%2?ch[1]:ch[0]),next,E*0.9,0.11);                       // bass, octave bounce
+      tone('square',hz(ch[2+(beat%3)]+12),next,E*0.45,0.012);                         // soft arpeggio shimmer
+      if(beat%2) hat(next,0.02); else if(beat===0||beat===4) hat(next,0.035);
+      next+=E; step++;
+    }
+  }
+  function start(){
+    if(playing||!on) return;
+    ctx=ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    if(ctx.state==='suspended') ctx.resume();
+    if(!out){ out=ctx.createGain(); out.gain.value=0.8; out.connect(ctx.destination);
+      const len=ctx.sampleRate*0.1; noise=ctx.createBuffer(1,len,ctx.sampleRate); const d=noise.getChannelData(0); for(let k=0;k<len;k++) d[k]=Math.random()*2-1; }
+    out.gain.cancelScheduledValues(ctx.currentTime); out.gain.setValueAtTime(0,ctx.currentTime); out.gain.linearRampToValueAtTime(0.8,ctx.currentTime+0.6);
+    playing=true; next=ctx.currentTime+0.1; timer=setInterval(schedule,40); schedule();
+  }
+  function stop(){
+    if(!playing) return; playing=false; clearInterval(timer);
+    out.gain.cancelScheduledValues(ctx.currentTime); out.gain.setValueAtTime(out.gain.value,ctx.currentTime); out.gain.linearRampToValueAtTime(0,ctx.currentTime+0.3);
+  }
+  function toggle(){ if(on && !playing){ start(); return true; } on=!on; if(on) start(); else stop(); return on; }
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden) stop(); else if(on && ctx) start(); });
+  return {start,toggle,get on(){return on;},get playing(){return playing;}};
+})();
+$('bgm').addEventListener('click',e=>{ const v=BGM.toggle(); $('bgm').setAttribute('aria-pressed',v); $('bgm').textContent=v?'♫ BGM ON':'♫ BGM OFF'; });
+['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,function first(e){
+  if(e.target && e.target.id==='bgm') return;      // the toggle handles itself
+  BGM.start(); document.removeEventListener('pointerdown',first); document.removeEventListener('keydown',first);
+}));
+select(0,false);
+</script>
+</body>
+</html>
